@@ -122,7 +122,7 @@ Yes, you can instantiate different handler objects in multiple classes, each man
 
 ## Learn More
 
-For a detailed explanation of the static pointer method used in the ISRHandler library, read the article: [Interrupts in C++ Using a Static Pointer Method](extras/StaticPointerInterrupt.html).
+For a detailed explanation of the static pointer method used in the ISRHandler library, read the article: [Interrupts in C++ Using a Static Pointer Method](https://arduino.one/ISRHandler/StaticPointerInterrupt.html).
 
 
 ## Conclusion
