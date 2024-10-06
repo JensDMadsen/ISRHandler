@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>README.md</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#isrhandler-library-documentation">ISRHandler Library Documentation</a>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#key-features">Key Features</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#isrhandler-class">ISRHandler Class</a></li>
+<li><a href="#detailed-usage">Detailed Usage</a></li>
+<li><a href="#error-handling-and-edge-cases">Error Handling and Edge Cases</a></li>
+<li><a href="#faq">FAQ</a></li>
+<li><a href="#learn-more">Learn More</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h1 id="isrhandler-library-documentation">ISRHandler Library Documentation</h1>
+<h2 id="introduction">Introduction</h2>
+<p><strong>ISRHandler</strong> is a flexible and reusable C++ library for handling interrupts in Arduino-based projects. It simplifies managing interrupts by encapsulating them in a class structure and using templates to handle multiple interrupt pins efficiently.</p>
+<p>This library is designed for embedded systems where precise and efficient interrupt handling is essential.</p>
+<h2 id="key-features">Key Features</h2>
+<ul>
+<li><strong>Static ISR</strong>: A lambda-based static interrupt service routine (ISR) that can be attached to one or more interrupt pins.</li>
+<li><strong>Template Support</strong>: Manage multiple interrupts across different pins by specifying them through templates.</li>
+<li><strong>Atomic Operations</strong>: Ensures safe assignment of the interrupt handler, especially on 8/16-bit systems.</li>
+<li><strong>Multiple Interrupts</strong>: Supports a single handler for multiple interrupts with the ability to check which interrupt triggered the handler.</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<ol>
+<li>Download or clone the library into your Arduino <code>libraries</code> folder.</li>
+<li>Open the Arduino IDE, and the library will appear in the <strong>Sketch &gt; Include Library</strong> menu.</li>
+<li>Include the library in your sketch using <code>#include &lt;ISRHandler.h&gt;</code>.</li>
+</ol>
+<h2 id="isrhandler-class">ISRHandler Class</h2>
+<p>The <strong>ISRHandler</strong> class allows handling multiple interrupt pins using a single <code>intr(uint8_t interruptNum)</code> function. You can attach multiple interrupts by specifying their pin numbers and modes (e.g., <code>RISING</code>, <code>FALLING</code>) through template parameters.</p>
+<h3 id="example-code">Example Code</h3>
+<pre class=" language-cpp"><code class="prism  language-cpp"><span class="token macro property">#<span class="token directive keyword">include</span> <span class="token string">"ISRHandler.h"</span></span>
+
+<span class="token comment">// intr() triggered on INT=2 RISING and INT=3 FALLING</span>
+<span class="token keyword">class</span> <span class="token class-name">MyInterruptHandler</span> <span class="token operator">:</span> <span class="token keyword">public</span> ISRHandler<span class="token operator">&lt;</span><span class="token number">2</span><span class="token punctuation">,</span> RISING<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> FALLING<span class="token operator">&gt;</span> <span class="token punctuation">{</span>             
+<span class="token keyword">protected</span><span class="token operator">:</span>
+  <span class="token keyword">void</span> <span class="token function">intr</span><span class="token punctuation">(</span>uint8_t interruptNum<span class="token punctuation">)</span> override <span class="token punctuation">{</span> 
+    <span class="token comment">// Handle interrupts here, INT2 and INT3 both trigger this handler </span>
+    Serial<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span><span class="token string">"Interrupt "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Serial<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>interruptNum<span class="token punctuation">)</span><span class="token punctuation">;</span> 
+    Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">" triggered!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+MyInterruptHandler handler<span class="token punctuation">;</span>
+
+<span class="token keyword">void</span> <span class="token function">setup</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  Serial<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token number">115200</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>Serial<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// Wait for Serial to initialize</span>
+  Serial<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"ISRHandler test"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Set the pins as input with pull-up resistors</span>
+  <span class="token function">pinMode</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> INPUT_PULLUP<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// Set pin 2 as input with pull-up</span>
+  <span class="token function">pinMode</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span> INPUT_PULLUP<span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// Set pin 3 as input with pull-up</span>
+
+  handler<span class="token punctuation">.</span><span class="token function">begin</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// Start handling interrupts on pins 2 and 3</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">void</span> <span class="token function">loop</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Main code logic</span>
+<span class="token punctuation">}</span> 
+</code></pre>
+<h3 id="explanation-of-example">Explanation of Example</h3>
+<ol>
+<li><strong>ISRHandler Class</strong>: The class <code>MyInterruptHandler</code> inherits from <code>ISRHandler</code>, specifying two interrupts (pin 2 and pin 3) with their respective modes (<code>RISING</code> for pin 2 and <code>FALLING</code> for pin 3).</li>
+<li><strong>intr(uint8_t interruptNum)</strong>: This function is triggered whenever one of the specified interrupts occurs. It prints which interrupt triggered the handler by passing the interrupt pin number.</li>
+<li><strong>begin()</strong>: This function starts the interrupt handling for the pins defined in the template parameters.</li>
+<li><strong>end()</strong>: This function stops interrupt handling by detaching the ISR and resetting the handler.</li>
+</ol>
+<h2 id="detailed-usage">Detailed Usage</h2>
+<h3 id="template-parameters">Template Parameters</h3>
+<p>The <strong>ISRHandler</strong> class uses template parameters to configure interrupt modes and pin numbers:</p>
+<ul>
+<li><code>ISRHandler&lt;pin1, mode1, pin2, mode2, ...&gt;</code>
+<ul>
+<li><strong>pinX</strong>: The pin number for each interrupt.</li>
+<li><strong>modeX</strong>: The interrupt mode for each pin (<code>RISING</code>, <code>FALLING</code>, <code>CHANGE</code>, etc.).</li>
+</ul>
+</li>
+</ul>
+<h3 id="functions">Functions</h3>
+<ul>
+<li><strong><code>begin()</code></strong>: Initializes the interrupt handler by attaching the ISR to the specified interrupt pins.</li>
+<li><strong><code>end()</code></strong>: Stops handling interrupts by detaching the ISR and resetting the handler pointer to <code>nullptr</code>.</li>
+</ul>
+<h3 id="using-multiple-interrupts">Using Multiple Interrupts</h3>
+<p>When using multiple interrupts, the <strong>ISRHandler</strong> provides the interrupt number to the <code>intr()</code> function. You can handle different interrupt sources within a single <code>intr()</code> function by checking the interrupt number.</p>
+<pre class=" language-cpp"><code class="prism  language-cpp"><span class="token keyword">void</span> <span class="token function">intr</span><span class="token punctuation">(</span>uint8_t interruptNum<span class="token punctuation">)</span> override <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>interruptNum <span class="token operator">==</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Handle interrupt from pin 2</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>interruptNum <span class="token operator">==</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Handle interrupt from pin 3</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="error-handling-and-edge-cases">Error Handling and Edge Cases</h2>
+<h3 id="common-issues">Common Issues</h3>
+<ul>
+<li><strong>Interrupts not working</strong>: Ensure that <code>begin()</code> is called after setting up the pins, and that interrupts are enabled on the pins you want to use.</li>
+<li><strong>Interrupt handling stops</strong>: Verify that the pins are properly configured (e.g., use <code>INPUT_PULLUP</code> if needed).</li>
+<li><strong>Interrupts trigger unexpectedly</strong>: For noisy environments or bouncing signals, consider adding external pull-up/pull-down resistors or debouncing the signal in software.</li>
+</ul>
+<h3 id="tips">Tips</h3>
+<ul>
+<li><strong>Pin Configuration</strong>: Always ensure that the interrupt pins are configured as <code>INPUT</code> or <code>INPUT_PULLUP</code> before calling <code>begin()</code>.</li>
+<li><strong>Handling Spikes</strong>: In noisy environments, use debouncing techniques or hardware filters to avoid false triggers.</li>
+</ul>
+<h2 id="faq">FAQ</h2>
+<p><strong>Q: Can I handle multiple interrupts with a single handler?</strong><br>
+Yes, <strong>ISRHandler</strong> allows you to manage multiple interrupts with a single <code>intr()</code> function by checking the interrupt number.</p>
+<p><strong>Q: How do I debounce an interrupt signal?</strong><br>
+For mechanical buttons or switches, you can debounce the signal in software by ignoring rapid successive triggers, or use a hardware debouncing circuit.</p>
+<p><strong>Q: Can I use <strong>ISRHandler</strong> with multiple classes?</strong><br>
+Yes, you can instantiate different handler objects in multiple classes, each managing its own set of interrupts.</p>
+<h2 id="learn-more">Learn More</h2>
+<p>For a detailed explanation of the static pointer method used in the ISRHandler library, read the article: <a href="extras/StaticPointerInterrupt.html">Interrupts in C++ Using a Static Pointer Method</a>.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The <strong>ISRHandler</strong> library simplifies interrupt handling across multiple pins in Arduino projects. By encapsulating interrupt logic in a class and using templates to manage multiple interrupt pins, it provides flexibility and ease of use for developers working with embedded systems.</p>
+<p>The library is ideal for applications requiring multiple interrupt sources, and the template system allows efficient and clean code for managing these interrupts.</p>
+<p>For more examples and detailed documentation, see the <code>examples</code> folder in the library repository.</p>
+<h2 id="contact">Contact</h2>
+<p>If you have any questions or would like to reach out for any reason, feel free to <a href="https://www.arduino.one/contact.html">Contact Me</a> through my online form.</p>
+<p>Thank you for visiting this repository, and I hope you find the tools and information useful!</p>
+
+    </div>
+  </div>
+</body>
+
+</html>
